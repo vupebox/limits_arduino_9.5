@@ -1,0 +1,262 @@
+////////////////// Douglas Modificaciones ////////////////////////////////
+#define SerialBitRate 9600
+//Solo puede ser numeros de 0 a 255
+#define numberNoColor 0
+#define numberAmarillo 1
+#define numberAzul 2
+#define numberRojo 3
+#define numberVerde 4
+#define numberBlanco 5
+#define numberError 7
+#define numberNoOperation 255
+
+
+bool statusSerial = true;
+bool statusApp = true;
+
+int ledStatus = 0; //Indica el led encendido
+
+int switchSavePin = 4; // Puede ser 4 y 11 en digitales, y A0 hasta A5 en analógicos
+bool lastSwitchState = false; // false  = 0, true = 1
+unsigned long waitSwitchSave = 300;
+
+
+unsigned long tmpWaitSwitchSave1 = 0;
+unsigned long tmpWaitSwitchSave2 = 0;
+
+
+/////////////////////////////////////////////////////////////////////////
+int Lswitch2 = 2;
+int Lswitch3 = 3;
+int Lswitch5 = 5;
+int Lswitch6 = 6;
+int Lswitch7 = 7;
+int led8 = 8;
+int led9 = 9;
+int led10 = 10;
+int led12 = 12;
+int led13 = 13;
+int flag = 0;
+int flag1 = 0;
+int flag2 = 0;
+int flag3 = 0;
+int flag4 = 0;
+
+//led13=verde
+//led12=azul
+//led8=blanco
+//led9=rojo
+//led10=amarillo
+//cambio git
+
+//led8=IN8, led9=IN2, 1ed10=IN3, led12=IN4, led13=IN5 (IN5=rele unitario)
+//Lswitch2=Rojo cable 2 hilos,Lswitch3=negro 4hilos, Lswitch5=rojo 4 hilos, Lswitch6=verde 4hilos,Lswitch7=amarillo 4hilos
+//IN1=blanco, IN2=rojo,IN3=amarillo,IN4azul,IN5 rele solo=verde
+
+void setup(){
+
+  ///////// Douglas Modificaciones //////////////////////
+    Serial.begin(SerialBitRate); //Iniciar comunicación UART
+  ///////////////////////////////////////////////////////
+
+  pinMode(Lswitch2,INPUT);   //Declar LSwitches Como entrada
+  pinMode(Lswitch3,INPUT);
+  pinMode(Lswitch5,INPUT);
+  pinMode(Lswitch6,INPUT);
+  pinMode(Lswitch7,INPUT);
+
+  pinMode(switchSavePin,INPUT);
+  
+  pinMode(led8,OUTPUT); //Declara Led como Salida
+  pinMode(led9,OUTPUT);
+  pinMode(led10,OUTPUT);
+  pinMode(led12,OUTPUT);
+  pinMode(led13,OUTPUT);
+  
+}
+void loop(){
+  ledStatus = numberNoOperation;
+  //Lead LSwitch para definer los flag
+if ((digitalRead(Lswitch2) == HIGH)&&(flag==0))
+{
+  flag =1;
+  }
+  if((digitalRead(Lswitch2) == LOW)&&(flag==1)){
+  flag =0;
+  }
+
+else if ((digitalRead(Lswitch3) == HIGH)&&(flag1==0))
+{
+  flag1 =1;
+  }
+ else if((digitalRead(Lswitch3) == LOW)&&(flag1==1)){
+  flag1 =0;
+  }
+else if ((digitalRead(Lswitch5) == HIGH)&&(flag2==0))
+{
+  flag2 =1;
+  }
+else  if((digitalRead(Lswitch5) == LOW)&&(flag2==1)){
+  flag2 =0;
+  }
+  else if ((digitalRead(Lswitch6) == HIGH)&&(flag3==0))
+{
+  flag3 =1;
+  }
+ else if((digitalRead(Lswitch6) == LOW)&&(flag3==1)){
+  flag3 =0;
+  }
+else if ((digitalRead(Lswitch7) == HIGH)&&(flag4==0))
+{
+  flag4 =1;
+  }
+ else if((digitalRead(Lswitch7) == LOW)&&(flag4==1)){
+  flag4 =0;
+  }
+//flag 1
+
+//Enciende Led conforme a flags
+ if ((flag1== 1)&&(flag2== 1)&&(flag==1)&&(flag3==1)&&(flag4==1)){
+    digitalWrite(led9,HIGH);
+    digitalWrite(led10,HIGH);
+    digitalWrite(led8,HIGH);
+    digitalWrite(led12,HIGH);
+    digitalWrite(led13,HIGH);
+      ledStatus = numberNoColor;  // Agregado por Douglas  "Ningun Led Encendido"
+    }
+  
+  
+  //Mod1
+  if ((flag1== 0)&&(flag2== 0)&&(flag==1)&&(flag3==0)&&(flag4==0)){
+    digitalWrite(led9,HIGH);
+    digitalWrite(led10,HIGH);
+    digitalWrite(led8,HIGH);
+    digitalWrite(led12,LOW);//azul
+    digitalWrite(led13,HIGH);
+    ledStatus = numberAzul;  // Agregado por Douglas  "Led Azul encendido".
+      
+  }
+  //Mod 2
+  if ((flag1== 0)&&(flag2== 1)&&(flag==1)&&(flag3==0)&&(flag4==0)){
+    digitalWrite(led10,LOW);//amarillo
+    digitalWrite(led8,HIGH);
+    digitalWrite(led9,HIGH);
+    digitalWrite(led12,HIGH);
+    digitalWrite(led13,HIGH);
+    ledStatus = numberAmarillo; // Agregado por Douglas  "Led Amarillo encendido".
+  }
+ //Mod 3
+     if ((flag1== 0)&&(flag2== 1)&&(flag==0)&&(flag3==1)&&(flag4==0)){
+    digitalWrite(led8,HIGH);
+    digitalWrite(led10,HIGH);
+    digitalWrite(led9,HIGH);
+    digitalWrite(led12,HIGH);
+    digitalWrite(led13,LOW);//verde
+    ledStatus = numberVerde; // Agregado por Douglas  "Led Verde encendido".
+
+  }  
+//mod 4
+        if ((flag1== 1)&&(flag2== 1)&&(flag==1)&&(flag3==1)&&(flag4==0)){
+    digitalWrite(led8,LOW);//blanco
+    digitalWrite(led10,HIGH);
+    digitalWrite(led9,HIGH);
+    digitalWrite(led12,HIGH);
+    digitalWrite(led13,HIGH);
+    ledStatus = numberBlanco; // Agregado por Douglas  "Led Blanco encendido".
+
+  } 
+  //error
+        if ((flag1== 0)&&(flag2== 0)&&(flag==0)&&(flag3==0)&&(flag4==0)){
+    digitalWrite(led8,HIGH);
+    digitalWrite(led10,HIGH);
+    digitalWrite(led9,LOW);
+    digitalWrite(led12,HIGH);
+    digitalWrite(led13,HIGH);
+    ledStatus = numberError; // Agregado por Douglas  "Led Error encendido".
+
+  } 
+  
+
+//Enciende todos los Lswitch (Aunque los definio como entrada, y arriba enciende los leds
+//Todo el tiempo enciende los Lswitch sin condición.
+  digitalWrite(Lswitch2, HIGH);
+    digitalWrite(Lswitch3, HIGH);
+     digitalWrite(Lswitch5, HIGH);
+        digitalWrite(Lswitch6, HIGH);
+          digitalWrite(Lswitch7, HIGH);
+
+///////////////////////////////////// Douglas Modificaciones ///////////////////////////////////////////////
+  tmpWaitSwitchSave1 = millis() - tmpWaitSwitchSave2;  
+  if( (digitalRead(switchSavePin) == HIGH) && (tmpWaitSwitchSave1 > waitSwitchSave) && (!lastSwitchState)){
+    Enviar(numberNoOperation);            //Para indicar al sistema que hubo un cambio
+    Enviar(numberNoColor);                //Reiniciar Guardado
+    Enviar(ledStatus);                    // Función para enviar datos 
+    tmpWaitSwitchSave2 = millis();
+    lastSwitchState = true;
+  }
+
+  if( (digitalRead(switchSavePin) == HIGH) && (tmpWaitSwitchSave1 > waitSwitchSave) ){
+      lastSwitchState = true;
+      tmpWaitSwitchSave2 = millis();
+  }
+
+  if( (digitalRead(switchSavePin) == LOW) && (tmpWaitSwitchSave1 > waitSwitchSave) ){
+      lastSwitchState = false;
+      tmpWaitSwitchSave2 = millis();
+  }
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
+      
+}
+
+
+
+
+//////////////////////////////////////////// Douglas Modificaciones //////////////////////////////////////////////
+void Enviar(byte data){
+  if(statusSerial){ //Verifica Si el Envio Serial Esta Activo, Si esta Activo Enviara Datos por Serial
+      // Por la cantidad de datos a enviar un duplicado de la información no compromete la velocidad de la información, de ser mayor a 8 bits, seria necesario el crc
+      Serial.print("l");
+      Serial.write(data & 255);
+      Serial.write(data & 255); // Byte Detección de errores en la comunicación
+      Serial.println("");
+      
+  }
+  
+}
+
+void serialEvent() {
+  String inputString;
+  char inChar;
+  bool stringComplete = false;
+  while (Serial.available() && (!stringComplete)) {
+    char inChar = (char)Serial.read();
+    inputString += inChar;
+    if (inChar == '\n') {
+      stringComplete = true;
+    }
+  }
+
+  if(inputString.equals("who")){
+    Serial.println(":LimitsApp-Arduino");
+  }
+
+  if(inputString.equals("startSerial")){
+    statusSerial = true;
+  }
+
+  if(inputString.equals("stopSerial")){
+    statusSerial = false;
+  }
+
+  if(inputString.equals("start")){
+    statusApp = true;
+  }
+
+  if(inputString.equals("stop")){
+    statusApp = false;
+  }
+
+}
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
